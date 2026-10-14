@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    # The suite spawns real processes (watchdog/SIGINT/venv tests); a wedged
+    # child must not hang the job until GitHub's 6h default.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      # tests/enhance_py.test.ts drives the embedded-plot template matcher.
+      - run: python3 -m pip install pillow numpy
+      - run: npm ci
+      - run: npm run check
+      - run: npm run pack:check

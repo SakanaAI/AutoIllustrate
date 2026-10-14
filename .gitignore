@@ -1,0 +1,22 @@
+__pycache__/
+.DS_Store
+*.drawio.bkp
+node_modules/
+dist/
+runs/
+runs-codex/
+runs-and-runs-codex.zip
+.venv/
+.env
+*.tgz
+playground/
+CLAUDE.md
+
+# agent scratch
+.agent/
+nohup.out
+
+# local eval writeups, mosaics, and export repro fixtures
+analysis/
+mathjax-drawio-repro-protocol.md
+mathjax-repro-examples/

@@ -1,0 +1,11 @@
+# Top-level runtime deps for the Python phase scripts. The shipped
+# requirements.txt is a universal hashed lock generated from this file:
+#   uv pip compile requirements.in --universal --generate-hashes \
+#     --python-version 3.10 -o requirements.txt
+pydantic==2.13.4
+pillow==12.2.0
+openai==2.41.1
+google-genai==2.8.0
+matplotlib==3.10.9
+# Phase 1 reads PDF sources; the planning agent imports pypdf to extract text.
+pypdf==6.13.2
