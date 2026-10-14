@@ -1,0 +1,80 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>__TITLE__</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #f5f5f5; }
+  iframe { border: 0; width: 100%; height: 100%; display: block; }
+  .msg { font: 16px system-ui, sans-serif; padding: 2em; }
+</style>
+<iframe id="editor" allow="clipboard-read; clipboard-write"></iframe>
+<script>
+  const ORIGIN = __ORIGIN__;
+  const AUTOSAVE = __AUTOSAVE__;
+  const EXPORT = __EXPORT__;      // null, or {format, scale, border}
+  const TITLE = __TITLE_JSON__;
+  const frame = document.getElementById("editor");
+  let exportRequested = false;
+
+  function send(msg) { frame.contentWindow.postMessage(JSON.stringify(msg), ORIGIN); }
+
+  async function post(path, body) {
+    const r = await fetch(path, { method: "POST", body });
+    if (!r.ok) throw new Error(await r.text());
+  }
+
+  async function saveXml(xml) {
+    try {
+      await post("/save", xml);
+      send({ action: "status", messageKey: "allChangesSaved", modified: false });
+    } catch (e) {
+      send({ action: "status", message: "Save failed: " + e.message, modified: true });
+      alert("Could not write the file: " + e.message);
+    }
+  }
+
+  async function exitEditor() {
+    try { await post("/exit", ""); } catch (e) {}
+    frame.remove();
+    document.body.innerHTML = '<p class="msg">Editor closed and local server stopped. You can close this tab.</p>';
+    window.close();
+  }
+
+  function requestExport() {
+    if (exportRequested) return;
+    exportRequested = true;
+    send({ action: "export", format: EXPORT.format, scale: EXPORT.scale, border: EXPORT.border, spin: "Exporting" });
+  }
+
+  window.addEventListener("message", async (ev) => {
+    if (ev.origin !== ORIGIN || typeof ev.data !== "string") return;
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch (e) { return; }
+    switch (msg.event) {
+      case "init": {
+        const xml = await (await fetch("/file", { cache: "no-store" })).text();
+        send({ action: "load", xml, autosave: AUTOSAVE ? 1 : 0, title: TITLE });
+        if (EXPORT) setTimeout(requestExport, 3000);  // fallback if no "load" event arrives
+        break;
+      }
+      case "load":
+        if (EXPORT) requestExport();
+        break;
+      case "export":
+        try { await post("/export", msg.data); }
+        catch (e) { await post("/error", "export failed: " + e.message).catch(() => {}); }
+        break;
+      case "autosave":
+        if (AUTOSAVE) await saveXml(msg.xml);
+        break;
+      case "save":
+        await saveXml(msg.xml);
+        if (msg.exit) await exitEditor();
+        break;
+      case "exit":
+        await exitEditor();
+        break;
+    }
+  });
+
+  frame.src = __EMBED_URL__;
+</script>

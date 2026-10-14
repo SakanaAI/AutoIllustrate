@@ -1,0 +1,71 @@
+{
+  "name": "autoillustrate",
+  "version": "0.5.0",
+  "description": "Generate publication-grade academic figures from a methodology brief via a 6-phase drawio + LLM pipeline.",
+  "license": "Apache-2.0",
+  "author": "Sakana AI",
+  "contributors": [
+    "Luca Grillotti <luca.grillotti@gmail.com>",
+    "Robert Tjarko Lange <robertlange0@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SakanaAI/Autoillustrate.git"
+  },
+  "homepage": "https://github.com/SakanaAI/Autoillustrate#readme",
+  "bugs": {
+    "url": "https://github.com/SakanaAI/Autoillustrate/issues"
+  },
+  "keywords": [
+    "figure",
+    "diagram",
+    "drawio",
+    "latex",
+    "paper",
+    "academic",
+    "llm",
+    "agent",
+    "visualization",
+    "cli"
+  ],
+  "type": "module",
+  "bin": {
+    "autoillustrate": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "scripts/_usage.py",
+    "scripts/check_params_contract.py",
+    "scripts/compose.py",
+    "scripts/enhance.py",
+    "scripts/inspect_panel.py",
+    "scripts/lint_math.py",
+    "scripts/schema.py",
+    "scripts/verify.py",
+    "scripts/install_drawio.sh",
+    "assets",
+    "references",
+    "prompts",
+    "requirements.txt",
+    "!**/__pycache__",
+    "!**/*.pyc"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "check": "npm run build && npm test",
+    "pack:check": "npm pack --dry-run",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@roberttlange/headless": "0.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
